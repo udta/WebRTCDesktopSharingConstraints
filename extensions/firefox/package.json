@@ -1,0 +1,17 @@
+{
+  "title": "WebRTC Screen Capturing",
+  "name": "webrtc-screen-capturing-firefox",
+  "id": "{C7F3A8C5-D9C6-08E1-8536-F8A86F00F9E2}",
+  "version": "1.0.0.0",
+  "description": "This firefox extension enables screen capturing.",
+  "main": "index.js",
+  "author": "udta23@163.com",
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "license": "MIT",
+  "permissions": {
+    "unsafe-content-script": true
+  },
+  "icon": "icon.png"
+}
