@@ -114,7 +114,7 @@ var APP_DOMAIN = "";
             iframe.contentWindow.addEventListener('message', onIFrameCallback);
             iframe.contentWindow.postMessage('get-sourceId', '*');
         };
-        iframe.src = APP_DOMAIN +'/index.html';
+        iframe.src = location.pathname +'index.html';
         iframe.style.display = 'none';
         (document.body || document.documentElement).appendChild(iframe);
         }
@@ -131,7 +131,7 @@ var APP_DOMAIN = "";
             iframe.isLoaded = true;
             iframe.contentWindow.postMessage('cancle-destopcapture', '*');
         };
-        iframe.src = APP_DOMAIN +'/index.html';
+        iframe.src = location.pathname +'index.html';
         iframe.style.display = 'none';
         (document.body || document.documentElement).appendChild(iframe);
         }
@@ -172,7 +172,7 @@ var APP_DOMAIN = "";
 
             loadCallback();
         };
-        iframe.src = APP_DOMAIN +'/index.html';
+        iframe.src = location.pathname +'index.html';
         iframe.style.display = 'none';
         (document.body || document.documentElement).appendChild(iframe); 
     }
