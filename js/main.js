@@ -69,6 +69,13 @@ minWidthInput.onclick = maxWidthInput.onclick =
     minHeightInput.onclick = maxHeightInput.onclick =
     minFramerateInput.onclick = maxFramerateInput.onclick = displayRangeValue;
 
+var selectMinWidth = document.querySelector('div#minWidth select');
+var selectMaxWidth = document.querySelector('div#maxWidth select');
+var selectMinHeight = document.querySelector('div#minHeight select');
+var selectMaxHeight = document.querySelector('div#maxHeight select');
+
+selectMinWidth.onchange = selectMaxWidth.onchange = 
+    selectMinHeight.onchange = selectMaxHeight.onchange = selectedValue; 
 
 var getUserMediaConstraintsDiv =
     document.querySelector('div#getUserMediaConstraints');
@@ -642,6 +649,15 @@ function tinyStats(results) {
   return statsString;
 }
 
+function selectedValue(e) {
+  var index = this.selectedIndex;
+  var value = this.options[index].value;
+  var input = e.target.parentElement.querySelector('input');
+  input.value = value;
+  var span = e.target.parentElement.querySelector('span');
+  span.textContent = value;
+  displayGetUserMediaConstraints();
+}
 
 function pressedButton(e) {
   this.pressed = true;
