@@ -37,7 +37,7 @@ var framerateLimitation = "GUM";
 
 if (adapter.browserDetails.browser != 'firefox') {
   //Remove the MediaTrackConstraints
-  limitSelector.remove(4);
+  limitSelector.remove(6);
 }
 
 getMediaButton.onclick = getMedia;
@@ -401,6 +401,12 @@ function createPeerConnection() {
            desc = framerateLimitationVP8(desc, undefined);
         } else if (framerateLimitation == 'H264'){
            desc = framerateLimitationH264(desc, undefined);
+        } else if (framerateLimitation == 'IMGVP8') {
+           desc = framerateLimitationIMGVP8(desc, undefined);
+        } else if (framerateLimitation == 'IMG264') {
+           desc = framerateLimitationIMG264(desc, undefined);
+        } else if (framerateLimitation == 'GUM') {
+           desc = framerateLimitationGUM(desc, undefined);
         }
         localPeerConnection.setLocalDescription(desc);
         remotePeerConnection.setRemoteDescription(desc);
@@ -413,6 +419,12 @@ function createPeerConnection() {
               desc2 = framerateLimitationVP8(desc2, undefined);
             } else if (framerateLimitation == 'H264'){
               desc2 = framerateLimitationH264(desc2, undefined);
+            } else if (framerateLimitation == 'IMGVP8') {
+              desc2 = framerateLimitationIMGVP8(desc2, undefined);
+            } else if (framerateLimitation == 'IMG264') {
+              desc2 = framerateLimitationIMG264(desc2, undefined);
+            } else if (framerateLimitation == 'GUM') {
+              desc2 = framerateLimitationGUM(desc2, undefined);
             }
             remotePeerConnection.setLocalDescription(desc2);
             localPeerConnection.setRemoteDescription(desc2);
@@ -436,6 +448,12 @@ function createPeerConnection() {
            desc = framerateLimitationVP8(desc, undefined);
         } else if (framerateLimitation == 'H264'){
            desc = framerateLimitationH264(desc, undefined);
+        } else if (framerateLimitation == 'IMGVP8') {
+           desc = framerateLimitationIMGVP8(desc, undefined);
+        } else if (framerateLimitation == 'IMG264') {
+           desc = framerateLimitationIMG264(desc, undefined);
+        } else if (framerateLimitation == 'GUM') {
+           desc = framerateLimitationGUM(desc, undefined);
         }
         localPeerConnection.setLocalDescription(desc);
         remotePeerConnection.setRemoteDescription(desc);
@@ -448,6 +466,12 @@ function createPeerConnection() {
               desc2 = framerateLimitationVP8(desc2, undefined);
             } else if (framerateLimitation == 'H264'){
               desc2 = framerateLimitationH264(desc2, undefined);
+            } else if (framerateLimitation == 'IMGVP8') {
+              desc2 = framerateLimitationIMGVP8(desc2, undefined);
+            } else if (framerateLimitation == 'IMG264') {
+              desc2 = framerateLimitationIMG264(desc2, undefined);
+            } else if (framerateLimitation == 'GUM') {
+              desc2 = framerateLimitationGUM(desc2, undefined);
             }
             remotePeerConnection.setLocalDescription(desc2);
             localPeerConnection.setRemoteDescription(desc2);
@@ -840,5 +864,93 @@ function framerateLimitationH264(description, payload) {
   return descH264;
 }
 
+//Limitation for VP8 with imageattr 
+function framerateLimitationIMGVP8(description, payload) {
+  var descVP8 = description;
+
+  //Get the right payload type of VP8
+  var payload = descVP8.sdp.match(/a=rtpmap:([0-9]*) VP8\/90000/)[1];
+
+  if (adapter.browserDetails.browser == 'firefox') {
+    if (maxFramerateInput.value !== '0') {
+      var org = "a=fmtp:"+payload+" max-fs=12288;max-fr=60\r\n";
+      var chg = org + "a=imageattr:"+payload+" send [x="+minWidthInput.value+",y="+minHeightInput.value+"] recv [x="+minWidthInput.value+",y="+minHeightInput.value+"]\r\n";
+
+      descVP8.sdp = description.sdp.replace(org, chg);
+    }
+  } else {
+    if (maxFramerateInput.value !== '0') {
+      var org = "a=rtpmap:"+payload+" VP8\/90000\r\n";
+      var chg = org + "a=imageattr:"+payload+" send [x="+minWidthInput.value+",y="+minHeightInput.value+"] recv [x="+minWidthInput.value+",y="+minHeightInput.value+"]\r\n";
+
+      descVP8.sdp = description.sdp.replace(org, chg);
+    }
+  }
+  console.log("The new VP8 description: ");
+  console.log(descVP8.sdp);
+
+  return descVP8;
+}
+
+//Limitation for H264 with imageattr 
+function framerateLimitationIMG264(description, payload) {
+  var descH264 = description;
+
+  //Get the right payload type of H264
+  var payload = descH264.sdp.match(/a=rtpmap:([0-9]*) H264\/90000/)[1];
+  var mLine  = descH264.sdp.match(/m=video [0-9]* [A-Z\/]* [0-9 ]*/)[0];
+  var payloads = descH264.sdp.match(/m=video [0-9]* [A-Z\/]* ([0-9 ]*)/)[1].split(' ');
+  var finalCodecList = payload;
+  payloads.forEach( function (_payload) { if ( _payload != payload ) { finalCodecList += " " + _payload; } } );
+  var newMLine = mLine.match(/m=video [0-9]* [A-Z\/]* /)[0] + finalCodecList;
+
+  //make sure the first video codec is H264
+  description.sdp = description.sdp.replace(mLine, newMLine);  
+  
+  if (adapter.browserDetails.browser == 'firefox') {
+
+    //set max-mbps as frameRate * maxWidth * maxHeight  ; max-fs as maxWidth * maxHeight / 16
+    if (maxFramerateInput.value !== '0') {
+      var org = "a=fmtp:"+payload+" profile-level-id=42e01f;level-asymmetry-allowed=1;packetization-mode=1\r\n";
+      var chg = org + "a=imageattr:"+payload+" send [x="+minWidthInput.value+",y="+minHeightInput.value+"] recv [x="+minWidthInput.value+",y="+minHeightInput.value+"]\r\n";
+      descH264.sdp = description.sdp.replace(org, chg);
+    }
+  } else {
+
+    //set max-mbps as frameRate * maxWidth * maxHeight  ; max-fs as maxWidth * maxHeight / 16
+    if (maxFramerateInput.value !== '0') {
+      var org = "a=fmtp:"+payload+" level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r\n";
+      var chg = org + "a=imageattr:"+payload+" send [x="+minWidthInput.value+",y="+minHeightInput.value+"] recv [x="+minWidthInput.value+",y="+minHeightInput.value+"]\r\n";
+      descH264.sdp = description.sdp.replace(org, chg);
+    }
+  }
+  console.log("The new H264 description: ");
+  console.log(descH264.sdp);
+
+  return descH264;
+}
+
+//Limitation for VP8 with GUM, and removed the SDP LIMITATION
+function framerateLimitationGUM(description, payload) {
+  var descVP8 = description;
+
+  //Get the right payload type of VP8
+  var payload = descVP8.sdp.match(/a=rtpmap:([0-9]*) VP8\/90000/)[1];
+
+  if (adapter.browserDetails.browser == 'firefox') {
+    if (maxFramerateInput.value !== '0') {
+      var org = "a=fmtp:"+payload+" max-fs=12288;max-fr=60\r\n";
+      var chg = "";
+
+      descVP8.sdp = description.sdp.replace(org, chg);
+    }
+  } else {
+    ; //Do not need to do anything.
+  }
+  console.log("The new VP8 description: ");
+  console.log(descVP8.sdp);
+
+  return descVP8;
+}
 
 
