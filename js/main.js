@@ -8,6 +8,16 @@
 
 'use strict';
 
+//Localhost unsecure http connections are allowed
+if (document.location.hostname !== "localhost") {
+    //check if the user is using http vs. https & redirect to https if needed
+    if (document.location.protocol != "https:"){
+        $(document).html("This doesn't work well on http. Redirecting to https");
+        console.log("redirecting to https");
+        document.location.href = "https:" + document.location.href.substring(document.location.protocol.length);
+    }
+}
+
 var getMediaButton = document.querySelector('button#getMedia');
 var connectButton = document.querySelector('button#connect');
 var hangupButton = document.querySelector('button#hangup');
@@ -236,9 +246,27 @@ function getUserMediaConstraints() {
     }
 
   } else if (adapter.browserDetails.browser == "firefox") {
-     constraints.audio = false;
+    constraints.audio = false;
 
-     constraints.video.mediaSource = "screen";
+    constraints.video.mediaSource = "screen";
+
+    if (minWidthInput.value !== '0') {
+      constraints.video.width = {};
+      constraints.video.width.min = minWidthInput.value;
+    }
+    if (maxWidthInput.value !== '0') {
+      constraints.video.width = constraints.video.width || {};
+      constraints.video.width.max = maxWidthInput.value;
+    }
+    if (minHeightInput.value !== '0') {
+      constraints.video.height = {};
+      constraints.video.height.min = minHeightInput.value;
+    }
+    if (maxHeightInput.value !== '0') {
+      constraints.video.height = constraints.video.height || {};
+      constraints.video.height.max = maxHeightInput.value;
+    }
+
 
     if (framerateLimitation == "GUM") {
       if (minFramerateInput.value !== '0') {
