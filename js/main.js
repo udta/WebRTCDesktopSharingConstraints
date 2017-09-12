@@ -255,7 +255,7 @@ function getUserMediaConstraints() {
   } else if (adapter.browserDetails.browser == "firefox") {
     constraints.audio = false;
 
-    constraints.video.mediaSource = "screen";
+    constraints.video.mediaSource = "application"/*"screen"*/;
 
     if (minWidthInput.value !== '0') {
       constraints.video.width = {};
